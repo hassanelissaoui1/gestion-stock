@@ -22,4 +22,5 @@ Thumbs.db
 *.log
 
 # Environment files
-.env
+.envtarget/
+target/
