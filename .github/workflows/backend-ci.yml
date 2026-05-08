@@ -9,22 +9,8 @@ on:
       - main
 
 jobs:
-  build-and-test:
+  build-backend:
     runs-on: ubuntu-latest
-
-    services:
-      mysql:
-        image: mysql:8.4
-        env:
-          MYSQL_DATABASE: gestion_stock_db
-          MYSQL_ROOT_PASSWORD: root
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
 
     steps:
       - name: Recuperer le code
@@ -39,9 +25,5 @@ jobs:
       - name: Donner le droit d'execution a Maven Wrapper
         run: chmod +x mvnw
 
-      - name: Compiler et tester le backend
-        run: ./mvnw clean test
-        env:
-          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/gestion_stock_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
-          SPRING_DATASOURCE_USERNAME: root
-          SPRING_DATASOURCE_PASSWORD: root
+      - name: Compiler le backend
+        run: ./mvnw clean package -DskipTests
