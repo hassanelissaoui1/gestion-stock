@@ -1,0 +1,29 @@
+name: Backend CI - Spring Boot
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Recuperer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Donner le droit d'execution a Maven Wrapper
+        run: chmod +x mvnw
+
+      - name: Compiler et tester le backend
+        run: ./mvnw clean test
