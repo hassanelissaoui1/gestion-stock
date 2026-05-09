@@ -1,5 +1,6 @@
 package com.example.gestionstockapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,6 +27,7 @@ public class Fournisseur {
 
     private String adresse;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "fournisseur")
     private List<Produit> produits;
 }

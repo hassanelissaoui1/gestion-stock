@@ -43,7 +43,7 @@ public class UtilisateurServiceImpl implements UtilisateurService {
             currentUtilisateur.setLogin(utilisateur.getLogin());
             currentUtilisateur.setMotDePasse(utilisateur.getMotDePasse());
             currentUtilisateur.setEmail(utilisateur.getEmail());
-            currentUtilisateur.setActif(utilisateur.isActif());
+            currentUtilisateur.setActif(utilisateur.getActif());
             currentUtilisateur.setRole(utilisateur.getRole());
 
             return utilisateurRepository.save(currentUtilisateur);

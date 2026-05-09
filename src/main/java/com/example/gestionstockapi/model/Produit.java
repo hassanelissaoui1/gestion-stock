@@ -1,5 +1,6 @@
 package com.example.gestionstockapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,16 +23,18 @@ public class Produit {
 
     private String description;
 
-    private double prix;
+    private Double prix;
 
-    private int quantiteStock;
+    private Integer quantiteStock;
 
-    private int seuilMinimum;
+    private Integer seuilMinimum;
 
     @ManyToOne
     @JoinColumn(name = "fournisseur_id", nullable = false)
+    @JsonIgnore
     private Fournisseur fournisseur;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "produit")
     private List<MouvementStock> mouvementsStock;
 }

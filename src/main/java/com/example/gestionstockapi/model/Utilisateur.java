@@ -35,7 +35,7 @@ public class Utilisateur {
     private String email;
 
     @Builder.Default
-    private boolean actif = true;
+    private Boolean actif = true;
 
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)

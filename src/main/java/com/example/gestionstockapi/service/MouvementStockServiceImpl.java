@@ -3,8 +3,10 @@ package com.example.gestionstockapi.service;
 import com.example.gestionstockapi.model.MouvementStock;
 import com.example.gestionstockapi.model.Produit;
 import com.example.gestionstockapi.model.TypeMouvement;
+import com.example.gestionstockapi.model.Utilisateur;
 import com.example.gestionstockapi.repository.MouvementStockRepository;
 import com.example.gestionstockapi.repository.ProduitRepository;
+import com.example.gestionstockapi.repository.UtilisateurRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,17 +22,30 @@ public class MouvementStockServiceImpl implements MouvementStockService {
     @Autowired
     private ProduitRepository produitRepository;
 
+    @Autowired
+    private UtilisateurRepository utilisateurRepository;
+
     @Override
     public MouvementStock ajouterEntreeStock(MouvementStock mouvementStock) {
         Produit produit = mouvementStock.getProduit();
+        Utilisateur utilisateur = mouvementStock.getUtilisateur();
 
         if (produit == null || produit.getId() == null) {
             return null;
         }
 
+        if (utilisateur == null || utilisateur.getId() == null) {
+            return null;
+        }
+
         Produit currentProduit = produitRepository.findById(produit.getId()).orElse(null);
+        Utilisateur currentUtilisateur = utilisateurRepository.findById(utilisateur.getId()).orElse(null);
 
         if (currentProduit == null) {
+            return null;
+        }
+
+        if (currentUtilisateur == null) {
             return null;
         }
 
@@ -45,6 +60,7 @@ public class MouvementStockServiceImpl implements MouvementStockService {
         produitRepository.save(currentProduit);
 
         mouvementStock.setProduit(currentProduit);
+        mouvementStock.setUtilisateur(currentUtilisateur);
         mouvementStock.setType(TypeMouvement.ENTREE);
         mouvementStock.setDateMouvement(LocalDateTime.now());
 
@@ -54,14 +70,24 @@ public class MouvementStockServiceImpl implements MouvementStockService {
     @Override
     public MouvementStock ajouterSortieStock(MouvementStock mouvementStock) {
         Produit produit = mouvementStock.getProduit();
+        Utilisateur utilisateur = mouvementStock.getUtilisateur();
 
         if (produit == null || produit.getId() == null) {
             return null;
         }
 
+        if (utilisateur == null || utilisateur.getId() == null) {
+            return null;
+        }
+
         Produit currentProduit = produitRepository.findById(produit.getId()).orElse(null);
+        Utilisateur currentUtilisateur = utilisateurRepository.findById(utilisateur.getId()).orElse(null);
 
         if (currentProduit == null) {
+            return null;
+        }
+
+        if (currentUtilisateur == null) {
             return null;
         }
 
@@ -80,6 +106,7 @@ public class MouvementStockServiceImpl implements MouvementStockService {
         produitRepository.save(currentProduit);
 
         mouvementStock.setProduit(currentProduit);
+        mouvementStock.setUtilisateur(currentUtilisateur);
         mouvementStock.setType(TypeMouvement.SORTIE);
         mouvementStock.setDateMouvement(LocalDateTime.now());
 

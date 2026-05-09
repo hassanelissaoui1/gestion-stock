@@ -1,5 +1,6 @@
 package com.example.gestionstockapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,9 +31,11 @@ public class MouvementStock {
 
     @ManyToOne
     @JoinColumn(name = "produit_id", nullable = false)
+
     private Produit produit;
 
     @ManyToOne
+
     @JoinColumn(name = "utilisateur_id", nullable = false)
     private Utilisateur utilisateur;
 }
