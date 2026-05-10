@@ -1,0 +1,152 @@
+body {
+  background-color: #f4f6f9;
+  font-family: Arial, sans-serif;
+}
+
+.sidebar {
+  min-height: 100vh;
+  background-color: #0f172a;
+  color: white;
+}
+
+.sidebar .logo {
+  font-size: 24px;
+  font-weight: bold;
+  padding: 25px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar a {
+  color: #cbd5e1;
+  text-decoration: none;
+  display: block;
+  padding: 14px 22px;
+  font-size: 16px;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+  background-color: #1e293b;
+  color: white;
+}
+
+.topbar {
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 15px 25px;
+}
+
+.content-card,
+.card-stat,
+.table-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.page-title {
+  font-weight: bold;
+  color: #0f172a;
+}
+
+.small-text {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.table th {
+  color: #0f172a;
+}
+
+.card-icon,
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: white;
+}
+
+.bg-products {
+  background-color: #2563eb;
+}
+
+.bg-suppliers {
+  background-color: #16a34a;
+}
+
+.bg-movements {
+  background-color: #f97316;
+}
+
+.bg-alerts {
+  background-color: #dc2626;
+}
+
+.login-page {
+  min-height: 100vh;
+}
+
+.login-left {
+  background-color: #0f172a;
+  color: white;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.login-left-content {
+  max-width: 480px;
+}
+
+.login-left h1 {
+  font-size: 38px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.login-left p {
+  color: #cbd5e1;
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.login-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 18px;
+  background-color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+  margin-bottom: 25px;
+}
+
+.login-right {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 430px;
+  background-color: white;
+  border-radius: 16px;
+  padding: 35px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.10);
+}
+
+.btn-login {
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: bold;
+}
