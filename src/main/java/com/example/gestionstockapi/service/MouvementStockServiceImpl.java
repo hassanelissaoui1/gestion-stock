@@ -1,9 +1,12 @@
 package com.example.gestionstockapi.service;
 
+import com.example.gestionstockapi.model.AlerteStock;
+import com.example.gestionstockapi.model.EtatAlerte;
 import com.example.gestionstockapi.model.MouvementStock;
 import com.example.gestionstockapi.model.Produit;
 import com.example.gestionstockapi.model.TypeMouvement;
 import com.example.gestionstockapi.model.Utilisateur;
+import com.example.gestionstockapi.repository.AlerteStockRepository;
 import com.example.gestionstockapi.repository.MouvementStockRepository;
 import com.example.gestionstockapi.repository.ProduitRepository;
 import com.example.gestionstockapi.repository.UtilisateurRepository;
@@ -24,6 +27,9 @@ public class MouvementStockServiceImpl implements MouvementStockService {
 
     @Autowired
     private UtilisateurRepository utilisateurRepository;
+
+    @Autowired
+    private AlerteStockRepository alerteStockRepository;
 
     @Override
     public MouvementStock ajouterEntreeStock(MouvementStock mouvementStock) {
@@ -58,6 +64,8 @@ public class MouvementStockServiceImpl implements MouvementStockService {
         );
 
         produitRepository.save(currentProduit);
+
+        verifierEtCreerAlerte(currentProduit);
 
         mouvementStock.setProduit(currentProduit);
         mouvementStock.setUtilisateur(currentUtilisateur);
@@ -105,12 +113,43 @@ public class MouvementStockServiceImpl implements MouvementStockService {
 
         produitRepository.save(currentProduit);
 
+        verifierEtCreerAlerte(currentProduit);
+
         mouvementStock.setProduit(currentProduit);
         mouvementStock.setUtilisateur(currentUtilisateur);
         mouvementStock.setType(TypeMouvement.SORTIE);
         mouvementStock.setDateMouvement(LocalDateTime.now());
 
         return mouvementStockRepository.save(mouvementStock);
+    }
+
+    private void verifierEtCreerAlerte(Produit produit) {
+        if (produit == null) {
+            return;
+        }
+
+        if (produit.getQuantiteStock() == null) {
+            return;
+        }
+
+        if (produit.getSeuilMinimum() == null) {
+            return;
+        }
+
+        if (produit.getQuantiteStock() <= produit.getSeuilMinimum()) {
+            AlerteStock alerteStock = new AlerteStock();
+
+            alerteStock.setProduit(produit);
+            alerteStock.setDateAlerte(LocalDateTime.now());
+            alerteStock.setEtat(EtatAlerte.NOUVELLE);
+            alerteStock.setMessage(
+                    "Stock faible pour le produit " + produit.getDesignation()
+                            + " : quantité actuelle = " + produit.getQuantiteStock()
+                            + ", seuil minimum = " + produit.getSeuilMinimum()
+            );
+
+            alerteStockRepository.save(alerteStock);
+        }
     }
 
     @Override

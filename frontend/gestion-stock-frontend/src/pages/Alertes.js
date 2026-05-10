@@ -5,9 +5,10 @@ import API_BASE_URL from '../services/api';
 function Alertes() {
   const [alertes, setAlertes] = useState([]);
   const [recherche, setRecherche] = useState("");
-  const [etat, setEtat] = useState("");
+  const [etatFiltre, setEtatFiltre] = useState("");
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState("");
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     chargerAlertes();
@@ -22,6 +23,7 @@ function Alertes() {
         if (!response.ok) {
           throw new Error("Erreur lors du chargement des alertes");
         }
+
         return response.json();
       })
       .then((data) => {
@@ -34,60 +36,134 @@ function Alertes() {
       });
   }
 
+  function consulterAlerte(id) {
+    setErreur("");
+    setMessage("");
+
+    fetch(`${API_BASE_URL}/alertes/consulterAlerte/${id}`, {
+      method: "PUT"
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Erreur lors de la consultation de l’alerte");
+        }
+
+        return response.json();
+      })
+      .then(() => {
+        setMessage("Alerte consultée avec succès");
+        chargerAlertes();
+      })
+      .catch((error) => {
+        setErreur(error.message);
+      });
+  }
+
+  function traiterAlerte(id) {
+    const confirmation = window.confirm("Voulez-vous vraiment traiter cette alerte ?");
+
+    if (!confirmation) {
+      return;
+    }
+
+    setErreur("");
+    setMessage("");
+
+    fetch(`${API_BASE_URL}/alertes/traiterAlerte/${id}`, {
+      method: "PUT"
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Erreur lors du traitement de l’alerte");
+        }
+
+        return response.json();
+      })
+      .then(() => {
+        setMessage("Alerte traitée avec succès");
+        chargerAlertes();
+      })
+      .catch((error) => {
+        setErreur(error.message);
+      });
+  }
+
+  function getBadgeEtat(etat) {
+    if (etat === "NOUVELLE") {
+      return "badge bg-warning text-dark";
+    }
+
+    if (etat === "CONSULTEE") {
+      return "badge bg-info text-dark";
+    }
+
+    if (etat === "TRAITEE") {
+      return "badge bg-success";
+    }
+
+    return "badge bg-secondary";
+  }
+
   function formaterDate(date) {
     if (!date) {
       return "";
     }
 
-    return new Date(date).toLocaleDateString("fr-FR");
+    return new Date(date).toLocaleString("fr-FR");
   }
 
-  function getBadgeEtat(etatAlerte) {
-    if (etatAlerte === "TRAITEE") {
-      return "badge bg-success";
-    }
+  const totalNouvelles = alertes.filter((alerte) => alerte.etat === "NOUVELLE").length;
+  const totalConsultees = alertes.filter((alerte) => alerte.etat === "CONSULTEE").length;
+  const totalTraitees = alertes.filter((alerte) => alerte.etat === "TRAITEE").length;
 
-    if (etatAlerte === "CONSULTEE") {
-      return "badge bg-info text-dark";
-    }
+  const alertesFiltrees = alertes.filter((alerte) => {
+    const produitNom = alerte.produit?.designation?.toLowerCase() || "";
+    const messageAlerte = alerte.message?.toLowerCase() || "";
+    const rechercheMinuscule = recherche.toLowerCase();
 
-    return "badge bg-warning text-dark";
-  }
+    const correspondRecherche =
+      produitNom.includes(rechercheMinuscule) ||
+      messageAlerte.includes(rechercheMinuscule);
 
-  const alertesFiltres = alertes.filter((alerte) => {
-    const rechercheOk =
-      alerte.message?.toLowerCase().includes(recherche.toLowerCase()) ||
-      alerte.produit?.designation?.toLowerCase().includes(recherche.toLowerCase());
+    const correspondEtat =
+      etatFiltre === "" || alerte.etat === etatFiltre;
 
-    const etatOk =
-      etat === "" || alerte.etat === etat;
-
-    return rechercheOk && etatOk;
+    return correspondRecherche && correspondEtat;
   });
-
-  const nombreNouvelles = alertes.filter((alerte) => alerte.etat === "NOUVELLE").length;
-  const nombreConsultees = alertes.filter((alerte) => alerte.etat === "CONSULTEE").length;
-  const nombreTraitees = alertes.filter((alerte) => alerte.etat === "TRAITEE").length;
 
   return (
     <Layout sousTitre="Gestion des alertes de stock">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h3 className="page-title mb-1">Alertes de stock</h3>
-          <span className="small-text">Liste des alertes liées aux produits en stock</span>
+          <span className="small-text">
+            Liste des alertes liées au stock faible
+          </span>
         </div>
 
-        <button className="btn btn-primary">
-          <i className="bi bi-plus-circle me-1"></i>
-          Ajouter alerte
+        <button className="btn btn-outline-primary" onClick={chargerAlertes}>
+          <i className="bi bi-arrow-clockwise me-1"></i>
+          Actualiser
         </button>
       </div>
+
+      {message && (
+        <div className="alert alert-success">
+          {message}
+        </div>
+      )}
+
+      {erreur && (
+        <div className="alert alert-danger">
+          {erreur}
+        </div>
+      )}
 
       <div className="row g-4 mb-4">
         <div className="col-md-4">
           <div className="card content-card p-3">
-            <p className="small-text mb-1">Nouvelles alertes</p>
-            <h3>{nombreNouvelles}</h3>
+            <p className="small-text mb-1">Alertes nouvelles</p>
+            <h3>{totalNouvelles}</h3>
             <span className="badge bg-warning text-dark">NOUVELLE</span>
           </div>
         </div>
@@ -95,7 +171,7 @@ function Alertes() {
         <div className="col-md-4">
           <div className="card content-card p-3">
             <p className="small-text mb-1">Alertes consultées</p>
-            <h3>{nombreConsultees}</h3>
+            <h3>{totalConsultees}</h3>
             <span className="badge bg-info text-dark">CONSULTEE</span>
           </div>
         </div>
@@ -103,7 +179,7 @@ function Alertes() {
         <div className="col-md-4">
           <div className="card content-card p-3">
             <p className="small-text mb-1">Alertes traitées</p>
-            <h3>{nombreTraitees}</h3>
+            <h3>{totalTraitees}</h3>
             <span className="badge bg-success">TRAITEE</span>
           </div>
         </div>
@@ -112,7 +188,7 @@ function Alertes() {
       <div className="card content-card mb-4">
         <div className="card-body">
           <div className="row g-3">
-            <div className="col-md-5">
+            <div className="col-md-6">
               <label className="form-label">Recherche</label>
               <input
                 type="text"
@@ -123,17 +199,17 @@ function Alertes() {
               />
             </div>
 
-            <div className="col-md-4">
+            <div className="col-md-3">
               <label className="form-label">État</label>
               <select
                 className="form-select"
-                value={etat}
-                onChange={(e) => setEtat(e.target.value)}
+                value={etatFiltre}
+                onChange={(e) => setEtatFiltre(e.target.value)}
               >
-                <option value="">Tous les états</option>
-                <option value="NOUVELLE">NOUVELLE</option>
-                <option value="CONSULTEE">CONSULTEE</option>
-                <option value="TRAITEE">TRAITEE</option>
+                <option value="">Tous</option>
+                <option value="NOUVELLE">Nouvelle</option>
+                <option value="CONSULTEE">Consultée</option>
+                <option value="TRAITEE">Traitée</option>
               </select>
             </div>
 
@@ -150,12 +226,6 @@ function Alertes() {
       {chargement && (
         <div className="alert alert-info">
           Chargement des alertes...
-        </div>
-      )}
-
-      {erreur && (
-        <div className="alert alert-danger">
-          {erreur}
         </div>
       )}
 
@@ -178,14 +248,14 @@ function Alertes() {
             </thead>
 
             <tbody>
-              {alertesFiltres.length === 0 && !chargement ? (
+              {alertesFiltrees.length === 0 && !chargement ? (
                 <tr>
                   <td colSpan="6" className="text-center text-muted">
                     Aucune alerte trouvée
                   </td>
                 </tr>
               ) : (
-                alertesFiltres.map((alerte) => (
+                alertesFiltrees.map((alerte) => (
                   <tr key={alerte.id}>
                     <td>{alerte.id}</td>
                     <td>{formaterDate(alerte.dateAlerte)}</td>
@@ -197,16 +267,20 @@ function Alertes() {
                       </span>
                     </td>
                     <td>
-                      <button className="btn btn-info btn-sm me-1">
+                      <button
+                        className="btn btn-info btn-sm me-1"
+                        onClick={() => consulterAlerte(alerte.id)}
+                        disabled={alerte.etat === "CONSULTEE" || alerte.etat === "TRAITEE"}
+                      >
                         Consulter
                       </button>
 
-                      <button className="btn btn-success btn-sm me-1">
+                      <button
+                        className="btn btn-success btn-sm"
+                        onClick={() => traiterAlerte(alerte.id)}
+                        disabled={alerte.etat === "TRAITEE"}
+                      >
                         Traiter
-                      </button>
-
-                      <button className="btn btn-danger btn-sm">
-                        <i className="bi bi-trash"></i>
                       </button>
                     </td>
                   </tr>

@@ -10,6 +10,8 @@ function Produits() {
   const [erreur, setErreur] = useState("");
   const [message, setMessage] = useState("");
   const [afficherFormulaire, setAfficherFormulaire] = useState(false);
+  const [modeModification, setModeModification] = useState(false);
+  const [idProduitModifie, setIdProduitModifie] = useState(null);
 
   const [nouveauProduit, setNouveauProduit] = useState({
     designation: "",
@@ -83,8 +85,16 @@ function Produits() {
       }
     };
 
-    fetch(`${API_BASE_URL}/produits/ajouterProduit`, {
-      method: "POST",
+    let url = `${API_BASE_URL}/produits/ajouterProduit`;
+    let method = "POST";
+
+    if (modeModification) {
+      url = `${API_BASE_URL}/produits/modifierProduit/${idProduitModifie}`;
+      method = "PUT";
+    }
+
+    fetch(url, {
+      method: method,
       headers: {
         "Content-Type": "application/json"
       },
@@ -92,13 +102,24 @@ function Produits() {
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Erreur lors de l’ajout du produit");
+          throw new Error(
+            modeModification
+              ? "Erreur lors de la modification du produit"
+              : "Erreur lors de l’ajout du produit"
+          );
         }
         return response.json();
       })
       .then(() => {
-        setMessage("Produit ajouté avec succès");
+        setMessage(
+          modeModification
+            ? "Produit modifié avec succès"
+            : "Produit ajouté avec succès"
+        );
+
         setAfficherFormulaire(false);
+        setModeModification(false);
+        setIdProduitModifie(null);
 
         setNouveauProduit({
           designation: "",
@@ -109,6 +130,68 @@ function Produits() {
           fournisseurId: ""
         });
 
+        chargerProduits();
+      })
+      .catch((error) => {
+        setErreur(error.message);
+      });
+  }
+
+  function preparerModification(produit) {
+    setAfficherFormulaire(true);
+    setModeModification(true);
+    setIdProduitModifie(produit.id);
+
+    setNouveauProduit({
+      designation: produit.designation,
+      description: produit.description,
+      prix: produit.prix,
+      quantiteStock: produit.quantiteStock,
+      seuilMinimum: produit.seuilMinimum,
+      fournisseurId: produit.fournisseur?.id || ""
+    });
+
+    setErreur("");
+    setMessage("");
+  }
+
+  function annulerFormulaire() {
+    setAfficherFormulaire(false);
+    setModeModification(false);
+    setIdProduitModifie(null);
+
+    setNouveauProduit({
+      designation: "",
+      description: "",
+      prix: "",
+      quantiteStock: "",
+      seuilMinimum: "",
+      fournisseurId: ""
+    });
+  }
+
+  function supprimerProduit(id) {
+    const confirmation = window.confirm("Voulez-vous vraiment supprimer ce produit ?");
+
+    if (!confirmation) {
+      return;
+    }
+
+    setErreur("");
+    setMessage("");
+
+    fetch(`${API_BASE_URL}/produits/supprimerProduit/${id}`, {
+      method: "DELETE"
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Erreur lors de la suppression du produit");
+        }
+
+        return response.text();
+      })
+      .then(() => {
+        setMessage("Produit supprimé avec succès");
         chargerProduits();
       })
       .catch((error) => {
@@ -133,7 +216,7 @@ function Produits() {
           onClick={() => setAfficherFormulaire(!afficherFormulaire)}
         >
           <i className="bi bi-plus-circle me-1"></i>
-          Ajouter produit
+          {afficherFormulaire ? "Fermer" : "Ajouter produit"}
         </button>
       </div>
 
@@ -152,7 +235,9 @@ function Produits() {
       {afficherFormulaire && (
         <div className="card content-card mb-4">
           <div className="card-header bg-white">
-            <h5 className="mb-0">Ajouter un produit</h5>
+            <h5 className="mb-0">
+              {modeModification ? "Modifier un produit" : "Ajouter un produit"}
+            </h5>
           </div>
 
           <div className="card-body">
@@ -238,13 +323,13 @@ function Produits() {
 
                 <div className="col-md-12">
                   <button type="submit" className="btn btn-success me-2">
-                    Enregistrer
+                    {modeModification ? "Modifier" : "Enregistrer"}
                   </button>
 
                   <button
                     type="button"
                     className="btn btn-secondary"
-                    onClick={() => setAfficherFormulaire(false)}
+                    onClick={annulerFormulaire}
                   >
                     Annuler
                   </button>
@@ -331,11 +416,17 @@ function Produits() {
                     <td>{produit.seuilMinimum}</td>
                     <td>{produit.fournisseur?.nom}</td>
                     <td>
-                      <button className="btn btn-warning btn-sm me-1">
+                      <button
+                        className="btn btn-warning btn-sm me-1"
+                        onClick={() => preparerModification(produit)}
+                      >
                         <i className="bi bi-pencil-square"></i>
                       </button>
 
-                      <button className="btn btn-danger btn-sm">
+                      <button
+                        className="btn btn-danger btn-sm"
+                        onClick={() => supprimerProduit(produit.id)}
+                      >
                         <i className="bi bi-trash"></i>
                       </button>
                     </td>

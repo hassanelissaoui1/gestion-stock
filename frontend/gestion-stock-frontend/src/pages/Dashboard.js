@@ -1,33 +1,124 @@
+import { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
+import API_BASE_URL from '../services/api';
 
 function Dashboard() {
+  const [produits, setProduits] = useState([]);
+  const [fournisseurs, setFournisseurs] = useState([]);
+  const [mouvements, setMouvements] = useState([]);
+  const [alertes, setAlertes] = useState([]);
+  const [erreur, setErreur] = useState("");
+
+  useEffect(() => {
+    chargerDashboard();
+  }, []);
+
+  function chargerDashboard() {
+    setErreur("");
+
+    fetch(`${API_BASE_URL}/produits/afficherProduits`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Erreur lors du chargement des produits");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setProduits(data);
+      })
+      .catch((error) => {
+        setErreur(error.message);
+      });
+
+    fetch(`${API_BASE_URL}/fournisseurs/afficherFournisseurs`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Erreur lors du chargement des fournisseurs");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setFournisseurs(data);
+      })
+      .catch((error) => {
+        setErreur(error.message);
+      });
+
+    fetch(`${API_BASE_URL}/mouvements/afficherMouvementsStock`)
+      .then((response) => {
+        if (!response.ok) {
+          setMouvements([]);
+          return [];
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setMouvements(data);
+      })
+      .catch(() => {
+        setMouvements([]);
+      });
+
+    fetch(`${API_BASE_URL}/alertes/afficherAlertes`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Erreur lors du chargement des alertes");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setAlertes(data);
+      })
+      .catch((error) => {
+        setErreur(error.message);
+      });
+  }
+
+  const produitsRecents = produits.slice(-5).reverse();
+  const alertesRecentes = alertes.slice(-3).reverse();
+
   return (
     <Layout sousTitre="Bienvenue dans votre espace de gestion">
-      <h3 className="page-title mb-4">Tableau de bord</h3>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h3 className="page-title mb-1">Tableau de bord</h3>
+        </div>
+
+        <button className="btn btn-outline-primary" onClick={chargerDashboard}>
+          <i className="bi bi-arrow-clockwise me-1"></i>
+          Actualiser
+        </button>
+      </div>
+
+      {erreur && (
+        <div className="alert alert-danger">
+          {erreur}
+        </div>
+      )}
 
       <div className="row g-4 mb-4">
         <div className="col-md-3">
-          <div className="card card-stat p-3">
-            <div className="d-flex justify-content-between align-items-center">
+          <div className="card stat-card">
+            <div className="card-body d-flex justify-content-between align-items-center">
               <div>
                 <p className="small-text mb-1">Produits</p>
-                <h3 className="mb-0">1</h3>
+                <h3>{produits.length}</h3>
               </div>
-              <div className="card-icon bg-products">
-                <i className="bi bi-box-seam"></i>
+              <div className="stat-icon bg-products">
+                <i className="bi bi-box"></i>
               </div>
             </div>
           </div>
         </div>
 
         <div className="col-md-3">
-          <div className="card card-stat p-3">
-            <div className="d-flex justify-content-between align-items-center">
+          <div className="card stat-card">
+            <div className="card-body d-flex justify-content-between align-items-center">
               <div>
                 <p className="small-text mb-1">Fournisseurs</p>
-                <h3 className="mb-0">1</h3>
+                <h3>{fournisseurs.length}</h3>
               </div>
-              <div className="card-icon bg-suppliers">
+              <div className="stat-icon bg-suppliers">
                 <i className="bi bi-truck"></i>
               </div>
             </div>
@@ -35,13 +126,13 @@ function Dashboard() {
         </div>
 
         <div className="col-md-3">
-          <div className="card card-stat p-3">
-            <div className="d-flex justify-content-between align-items-center">
+          <div className="card stat-card">
+            <div className="card-body d-flex justify-content-between align-items-center">
               <div>
                 <p className="small-text mb-1">Mouvements</p>
-                <h3 className="mb-0">6</h3>
+                <h3>{mouvements.length}</h3>
               </div>
-              <div className="card-icon bg-movements">
+              <div className="stat-icon bg-movements">
                 <i className="bi bi-arrow-left-right"></i>
               </div>
             </div>
@@ -49,13 +140,13 @@ function Dashboard() {
         </div>
 
         <div className="col-md-3">
-          <div className="card card-stat p-3">
-            <div className="d-flex justify-content-between align-items-center">
+          <div className="card stat-card">
+            <div className="card-body d-flex justify-content-between align-items-center">
               <div>
                 <p className="small-text mb-1">Alertes</p>
-                <h3 className="mb-0">2</h3>
+                <h3>{alertes.length}</h3>
               </div>
-              <div className="card-icon bg-alerts">
+              <div className="stat-icon bg-alerts">
                 <i className="bi bi-exclamation-triangle"></i>
               </div>
             </div>
@@ -63,14 +154,15 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="row g-4">
+      <div className="row g-4 mb-4">
         <div className="col-md-7">
-          <div className="card table-card">
+          <div className="card content-card">
             <div className="card-header bg-white">
               <h5 className="mb-0">Produits récents</h5>
             </div>
+
             <div className="card-body">
-              <table className="table table-hover">
+              <table className="table table-bordered table-hover align-middle">
                 <thead>
                   <tr>
                     <th>ID</th>
@@ -80,14 +172,33 @@ function Dashboard() {
                     <th>Seuil</th>
                   </tr>
                 </thead>
+
                 <tbody>
-                  <tr>
-                    <td>1</td>
-                    <td>Clavier</td>
-                    <td>120 DH</td>
-                    <td><span className="badge bg-success">32</span></td>
-                    <td>5</td>
-                  </tr>
+                  {produitsRecents.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="text-center text-muted">
+                        Aucun produit trouvé
+                      </td>
+                    </tr>
+                  ) : (
+                    produitsRecents.map((produit) => (
+                      <tr key={produit.id}>
+                        <td>{produit.id}</td>
+                        <td>{produit.designation}</td>
+                        <td>{produit.prix} DH</td>
+                        <td>
+                          <span className={
+                            produit.quantiteStock <= produit.seuilMinimum
+                              ? "badge bg-danger"
+                              : "badge bg-success"
+                          }>
+                            {produit.quantiteStock}
+                          </span>
+                        </td>
+                        <td>{produit.seuilMinimum}</td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -95,19 +206,38 @@ function Dashboard() {
         </div>
 
         <div className="col-md-5">
-          <div className="card table-card">
+          <div className="card content-card">
             <div className="card-header bg-white">
               <h5 className="mb-0">Alertes récentes</h5>
             </div>
+
             <div className="card-body">
-              <div className="alert alert-warning">
-                <strong>Stock faible</strong><br />
-                Stock faible pour le produit Clavier
-              </div>
-              <div className="alert alert-success">
-                <strong>Alerte traitée</strong><br />
-                L’alerte du produit Clavier est traitée.
-              </div>
+              {alertesRecentes.length === 0 ? (
+                <p className="text-muted mb-0">Aucune alerte trouvée</p>
+              ) : (
+                alertesRecentes.map((alerte) => (
+                  <div
+                    key={alerte.id}
+                    className={
+                      alerte.etat === "TRAITEE"
+                        ? "alert alert-success"
+                        : alerte.etat === "CONSULTEE"
+                          ? "alert alert-info"
+                          : "alert alert-warning"
+                    }
+                  >
+                    <strong>
+                      {alerte.etat === "TRAITEE"
+                        ? "Alerte traitée"
+                        : alerte.etat === "CONSULTEE"
+                          ? "Alerte consultée"
+                          : "Stock faible"}
+                    </strong>
+                    <br />
+                    {alerte.message}
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>

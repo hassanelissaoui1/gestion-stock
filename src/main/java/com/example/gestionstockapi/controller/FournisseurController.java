@@ -1,11 +1,11 @@
 package com.example.gestionstockapi.controller;
 
 import com.example.gestionstockapi.model.Fournisseur;
+import com.example.gestionstockapi.security.SecuriteService;
 import com.example.gestionstockapi.service.FournisseurService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/fournisseurs")
@@ -14,28 +14,66 @@ public class FournisseurController {
     @Autowired
     private FournisseurService fournisseurService;
 
+    @Autowired
+    private SecuriteService securiteService;
+
     @PostMapping("/ajouterFournisseur")
-    public Fournisseur ajouterFournisseur(@RequestBody Fournisseur fournisseur) {
-        return fournisseurService.ajouterFournisseur(fournisseur);
+    public ResponseEntity<?> ajouterFournisseur(
+            @RequestBody Fournisseur fournisseur,
+            @RequestHeader(value = "X-Utilisateur-Id", required = false) Long utilisateurId
+    ) {
+        if (!securiteService.estAdmin(utilisateurId)) {
+            return ResponseEntity.status(403).body("Accès refusé");
+        }
+
+        return ResponseEntity.ok(fournisseurService.ajouterFournisseur(fournisseur));
     }
 
     @GetMapping("/afficherFournisseurs")
-    public List<Fournisseur> afficherFournisseurs() {
-        return fournisseurService.afficherFournisseurs();
+    public ResponseEntity<?> afficherFournisseurs(
+            @RequestHeader(value = "X-Utilisateur-Id", required = false) Long utilisateurId
+    ) {
+        if (!securiteService.estAdminOuGestionnaireStock(utilisateurId)) {
+            return ResponseEntity.status(403).body("Accès refusé");
+        }
+
+        return ResponseEntity.ok(fournisseurService.afficherFournisseurs());
     }
 
     @GetMapping("/afficherFournisseurParId/{id}")
-    public Fournisseur afficherFournisseurParId(@PathVariable Long id) {
-        return fournisseurService.afficherFournisseurParId(id);
+    public ResponseEntity<?> afficherFournisseurParId(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-Utilisateur-Id", required = false) Long utilisateurId
+    ) {
+        if (!securiteService.estAdminOuGestionnaireStock(utilisateurId)) {
+            return ResponseEntity.status(403).body("Accès refusé");
+        }
+
+        return ResponseEntity.ok(fournisseurService.afficherFournisseurParId(id));
     }
 
     @PutMapping("/modifierFournisseur/{id}")
-    public Fournisseur modifierFournisseur(@PathVariable Long id, @RequestBody Fournisseur fournisseur) {
-        return fournisseurService.modifierFournisseur(id, fournisseur);
+    public ResponseEntity<?> modifierFournisseur(
+            @PathVariable Long id,
+            @RequestBody Fournisseur fournisseur,
+            @RequestHeader(value = "X-Utilisateur-Id", required = false) Long utilisateurId
+    ) {
+        if (!securiteService.estAdmin(utilisateurId)) {
+            return ResponseEntity.status(403).body("Accès refusé");
+        }
+
+        return ResponseEntity.ok(fournisseurService.modifierFournisseur(id, fournisseur));
     }
 
     @DeleteMapping("/supprimerFournisseur/{id}")
-    public boolean supprimerFournisseur(@PathVariable Long id) {
-        return fournisseurService.supprimerFournisseur(id);
+    public ResponseEntity<?> supprimerFournisseur(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-Utilisateur-Id", required = false) Long utilisateurId
+    ) {
+        if (!securiteService.estAdmin(utilisateurId)) {
+            return ResponseEntity.status(403).body("Accès refusé");
+        }
+
+        return ResponseEntity.ok(fournisseurService.supprimerFournisseur(id));
     }
 }
