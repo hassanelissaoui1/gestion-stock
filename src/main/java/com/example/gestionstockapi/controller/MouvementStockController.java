@@ -45,7 +45,7 @@ public class MouvementStockController {
     public ResponseEntity<?> afficherMouvementsStock(
             @RequestHeader(value = "X-Utilisateur-Id", required = false) Long utilisateurId
     ) {
-        if (!securiteService.estAdmin(utilisateurId)) {
+        if (!securiteService.estAdminOuGestionnaireStock(utilisateurId)) {
             return ResponseEntity.status(403).body("Accès refusé");
         }
 
@@ -57,7 +57,7 @@ public class MouvementStockController {
             @PathVariable Long id,
             @RequestHeader(value = "X-Utilisateur-Id", required = false) Long utilisateurId
     ) {
-        if (!securiteService.estAdmin(utilisateurId)) {
+        if (!securiteService.estAdminOuGestionnaireStock(utilisateurId)) {
             return ResponseEntity.status(403).body("Accès refusé");
         }
 
