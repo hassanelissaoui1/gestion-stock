@@ -11,14 +11,14 @@ function Topbar({ sousTitre }) {
   }
 
   return (
-    <div className="topbar d-flex justify-content-between align-items-center">
-      <div>
+    <div className="topbar">
+      <div className="topbar-title">
         <h5 className="mb-0">Application de gestion de stock</h5>
         <span className="small-text">{sousTitre}</span>
       </div>
 
-      <div>
-        <span className="me-3">
+      <div className="topbar-user">
+        <span className="user-name">
           <i className="bi bi-person-circle"></i>{" "}
           {utilisateurConnecte
             ? `${utilisateurConnecte.prenom} ${utilisateurConnecte.nom}`
@@ -26,7 +26,7 @@ function Topbar({ sousTitre }) {
         </span>
 
         {utilisateurConnecte?.role?.nom && (
-          <span className="badge bg-primary me-3">
+          <span className="badge bg-primary">
             {utilisateurConnecte.role.nom}
           </span>
         )}

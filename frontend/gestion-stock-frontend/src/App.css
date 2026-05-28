@@ -150,3 +150,170 @@ body {
   border-radius: 10px;
   font-weight: bold;
 }
+
+/* Responsive layout */
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  background-color: #f4f6f9;
+}
+
+.main-area {
+  flex: 1;
+  min-width: 0;
+}
+
+.page-content {
+  padding: 24px;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  min-width: 260px;
+  min-height: 100vh;
+  background-color: #0f172a;
+  color: white;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar a {
+  white-space: nowrap;
+}
+
+/* Topbar */
+.topbar {
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 15px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.user-name {
+  white-space: nowrap;
+}
+
+/* Tables */
+.table-card {
+  overflow-x: auto;
+}
+
+.table {
+  min-width: 720px;
+}
+
+/* Buttons and inputs */
+.btn,
+.form-control,
+.form-select {
+  max-width: 100%;
+}
+
+/* Medium screens */
+@media (max-width: 992px) {
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-width: 100%;
+    min-height: auto;
+  }
+
+  .sidebar .logo {
+    padding: 16px 20px;
+  }
+
+  .sidebar-menu {
+    flex-direction: row;
+    overflow-x: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .sidebar a {
+    padding: 12px 16px;
+    flex: 0 0 auto;
+  }
+
+  .page-content {
+    padding: 18px;
+  }
+
+  .topbar {
+    align-items: flex-start;
+  }
+}
+
+/* Small screens */
+@media (max-width: 576px) {
+  .page-content {
+    padding: 14px;
+  }
+
+  .topbar {
+    padding: 14px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .topbar-user {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .page-title {
+    font-size: 26px;
+  }
+
+  .content-card,
+  .card-stat,
+  .table-card {
+    border-radius: 10px;
+  }
+
+  .card-body {
+    padding: 14px;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .topbar-user .btn {
+    width: auto;
+  }
+
+  .login-left {
+    min-height: auto;
+    padding: 30px 20px;
+  }
+
+  .login-right {
+    min-height: auto;
+    padding: 30px 20px;
+  }
+
+  .login-left h1 {
+    font-size: 28px;
+  }
+
+  .login-card {
+    padding: 24px;
+  }
+}
